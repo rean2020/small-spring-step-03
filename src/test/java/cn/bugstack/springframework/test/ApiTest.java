@@ -1,7 +1,5 @@
 package cn.bugstack.springframework.test;
 
-import cn.bugstack.springframework.beans.PropertyValue;
-import cn.bugstack.springframework.beans.PropertyValues;
 import cn.bugstack.springframework.beans.factory.config.BeanDefinition;
 import cn.bugstack.springframework.beans.factory.support.DefaultListableBeanFactory;
 import cn.bugstack.springframework.test.bean.UserService;
@@ -19,13 +17,8 @@ public class ApiTest {
         // 1.初始化 BeanFactory
         DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
 
-        // 2.设置属性
-        PropertyValues propertyValues = new PropertyValues();
-        propertyValues.addPropertyValue(new PropertyValue("name", "小傅哥"));
-        propertyValues.addPropertyValue(new PropertyValue("age", 18));
-
         // 3. 注入bean
-        BeanDefinition beanDefinition = new BeanDefinition(UserService.class, propertyValues);
+        BeanDefinition beanDefinition = new BeanDefinition(UserService.class);
         beanFactory.registerBeanDefinition("userService", beanDefinition);
 
         // 4.获取bean

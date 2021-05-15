@@ -1,12 +1,7 @@
 package cn.bugstack.springframework.beans.factory.support;
 
 import cn.bugstack.springframework.beans.BeansException;
-import cn.bugstack.springframework.beans.PropertyValue;
 import cn.bugstack.springframework.beans.factory.config.BeanDefinition;
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.util.TypeUtil;
-
-import java.lang.reflect.Field;
 
 /**
  * 博客：https://bugstack.cn - 沉淀、分享、成长，让自己和他人都能有所收获！
@@ -15,31 +10,31 @@ import java.lang.reflect.Field;
  */
 public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory {
 
+    private InstantiationStrategy instantiationStrategy = new SimpleInstantiationStrategy();
+
     @Override
     protected Object createBean(String beanName, BeanDefinition beanDefinition) throws BeansException {
+        Object bean = null;
         try {
-            // 创建 Bean
-            Object bean = beanDefinition.getBeanClass().newInstance();
-            // 为Bean 填充属性
-            applyPropertyValues(beanName, bean, beanDefinition);
-            return bean;
-        } catch (InstantiationException | IllegalAccessException e) {
-            e.printStackTrace();
+            bean = createBeanInstance(beanDefinition);
+        } catch (Exception e) {
+            throw new BeansException("Instantiation of bean failed", e);
         }
-        return null;
+
+        addSingleton(beanName, bean);
+        return bean;
     }
 
-    private void applyPropertyValues(String beanName, Object bean, BeanDefinition beanDefinition) {
-        try {
-            for (PropertyValue propertyValue : beanDefinition.getPropertyValues().getPropertyValues()) {
-                Field declaredField = bean.getClass().getDeclaredField(propertyValue.getName());
-                declaredField.setAccessible(true);
-                declaredField.set(bean, propertyValue.getValue());
-            }
-        } catch (Exception ex) {
-            throw new BeansException("Error setting property values for bean: " + beanName, ex);
-        }
+    protected Object createBeanInstance(BeanDefinition beanDefinition) {
+        return getInstantiationStrategy().instantiate(beanDefinition);
+    }
 
+    public InstantiationStrategy getInstantiationStrategy() {
+        return instantiationStrategy;
+    }
+
+    public void setInstantiationStrategy(InstantiationStrategy instantiationStrategy) {
+        this.instantiationStrategy = instantiationStrategy;
     }
 
 }
